@@ -1,0 +1,1 @@
+Fist attempt to create a web app after learning some React fundamentals. This was just a challenge to myself to understand better how React works. The code is far from ideal but the idea was to learn and not be perfect at this point.
