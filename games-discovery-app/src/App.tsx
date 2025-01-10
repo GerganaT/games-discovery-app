@@ -23,7 +23,7 @@ function App() {
   const existingUniqueGenres = new Set<number>();
   const relevanceMenuItems = [
     { label: "Relevance", value: "default" },
-    { label: "Date added", value: "updated" },
+    { label: "Most recently updated", value: "updated" },
     { label: "Name", value: "name" },
     { label: "Release date", value: "released" },
     { label: "Popularity", value: "metacritic" },
@@ -180,7 +180,7 @@ function App() {
               fontWeight="bold"
               fontSize="4xl"
               alignSelf="flex-start"
-              mb="3"
+              my="3"
               _hover={{ textDecoration: "underline", cursor: "pointer" }}
               onClick={() => {
                 setClickedGenre(undefined);
@@ -213,12 +213,12 @@ function App() {
             )}
           </VStack>
           <VStack width="100vw">
-            <VStack align="start" width="100%" pb="4">
+            <VStack align="start" width="100%" pb="6">
               <Text fontWeight="bolder" fontSize="6xl">{`${
                 clickedPlatformName ?? ""
               } ${clickedGenre?.name ?? ""} Games`}</Text>
               {uniquePlatforms && (
-                <HStack my="4">
+                <HStack my="6">
                   <DropdownMenu
                     backgroundColor={appThemeColors.fieldTheme.backgroundColor}
                     selectionItems={uniquePlatforms}
