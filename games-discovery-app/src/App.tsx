@@ -1,16 +1,16 @@
-import useThemeToggle from "./components/ui/color-mode-toggle";
-import useGames from "./hooks/useGames";
-import { Text, Grid, HStack, VStack, Input, Box } from "@chakra-ui/react";
 import { Switch } from "@/components/ui/switch";
+import { Box, Grid, HStack, Input, Text, VStack } from "@chakra-ui/react";
+import _ from "lodash";
+import { useEffect, useMemo, useState } from "react";
+import { LuSearch } from "react-icons/lu";
+import useThemeToggle from "./components/ui/color-mode-toggle";
+import DropdownMenu from "./components/ui/DropdownMenu";
 import GameCard from "./components/ui/game-card/GameCard";
 import GameCardSkeleton from "./components/ui/game-card/GameCardSkeleton";
 import GenreItem from "./components/ui/GenreItem";
-import { useEffect, useState } from "react";
-import { GameGenre, Platform } from "./services/gamesService";
-import DropdownMenu from "./components/ui/DropdownMenu";
-import _ from "lodash";
 import { InputGroup } from "./components/ui/input-group";
-import { LuSearch } from "react-icons/lu";
+import useGames from "./hooks/useGames";
+import { GameGenre, Platform } from "./services/gamesService";
 
 function App() {
   const { appThemeColors, toggleColorMode } = useThemeToggle();
@@ -36,7 +36,6 @@ function App() {
 
   useEffect(() => {
     showLoadingSkeleton();
-    visibleGames();
   }, [searchGameName]);
 
   const showLoadingSkeleton = () => {
@@ -45,8 +44,8 @@ function App() {
       setShouldShowLoadingSkeleton(false);
     }, 1000);
   };
-
-  const visibleGames = () => {
+  // cache games instead calling the api each time
+  const visibleGames = useMemo(() => {
     let filteredGames = _.cloneDeep(games);
 
     if (clickedRelevanceMenuItem !== relevanceMenuItems[0].value) {
@@ -80,33 +79,41 @@ function App() {
       );
     }
 
-    return filteredGames?.filter((game) => {
-      switch (true) {
-        case clickedGenre && clickedPlatformName !== undefined:
-          return (
-            game.genres.find(
+    return (
+      filteredGames?.filter((game) => {
+        switch (true) {
+          case clickedGenre && clickedPlatformName !== undefined:
+            return (
+              game.genres.find(
+                (genreItem) => genreItem.id === clickedGenre?.id
+              ) &&
+              game.parent_platforms.find(
+                (parentPlatform) =>
+                  parentPlatform.platform.name === clickedPlatformName
+              )
+            );
+          case clickedGenre !== undefined:
+            return game.genres.find(
               (genreItem) => genreItem.id === clickedGenre?.id
-            ) &&
-            game.parent_platforms.find(
+            );
+
+          case clickedPlatformName !== undefined:
+            return game.parent_platforms.find(
               (parentPlatform) =>
                 parentPlatform.platform.name === clickedPlatformName
-            )
-          );
-        case clickedGenre !== undefined:
-          return game.genres.find(
-            (genreItem) => genreItem.id === clickedGenre?.id
-          );
-
-        case clickedPlatformName !== undefined:
-          return game.parent_platforms.find(
-            (parentPlatform) =>
-              parentPlatform.platform.name === clickedPlatformName
-          );
-        default:
-          return true;
-      }
-    });
-  };
+            );
+          default:
+            return true;
+        }
+      }) ?? []
+    );
+  }, [
+    clickedGenre,
+    clickedPlatformName,
+    games,
+    clickedRelevanceMenuItem,
+    searchGameName,
+  ]);
 
   useEffect(() => {
     const newPlatformarray: Platform[] = [{ name: "All Platforms" }];
@@ -185,7 +192,6 @@ function App() {
               onClick={() => {
                 setClickedGenre(undefined);
                 showLoadingSkeleton();
-                visibleGames();
               }}
             >
               Genres
@@ -203,7 +209,6 @@ function App() {
                         onClick: () => {
                           showLoadingSkeleton();
                           setClickedGenre(genre);
-                          visibleGames();
                         },
                       }}
                     />
@@ -231,7 +236,6 @@ function App() {
                           ? undefined
                           : (value as string)
                       );
-                      visibleGames();
                     }}
                   />
                   <DropdownMenu
@@ -243,7 +247,6 @@ function App() {
                     onMenuItemSelect={(value) => {
                       showLoadingSkeleton();
                       setClickedRelevanceMenuItem(value);
-                      visibleGames();
                     }}
                   />
                 </HStack>
@@ -255,12 +258,12 @@ function App() {
               width="100%"
               pe="4"
             >
-              {shouldShowLoadingSkeleton || !visibleGames() ? (
+              {shouldShowLoadingSkeleton || visibleGames.length === 0 ? (
                 Array.from({ length: 20 }).map((_, index) => (
                   <GameCardSkeleton key={index} />
                 ))
-              ) : visibleGames()?.length !== 0 ? (
-                visibleGames()?.map((game) => (
+              ) : visibleGames.length !== 0 ? (
+                visibleGames.map((game) => (
                   <GameCard
                     key={game.id}
                     platforms={game.parent_platforms}
