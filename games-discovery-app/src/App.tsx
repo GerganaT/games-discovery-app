@@ -9,12 +9,12 @@ import GameCard from "./components/ui/game-card/GameCard";
 import GameCardSkeleton from "./components/ui/game-card/GameCardSkeleton";
 import GenreItem from "./components/ui/GenreItem";
 import { InputGroup } from "./components/ui/input-group";
-import useGames from "./hooks/useGames";
+import useGamesStore from "./hooks/games/store";
 import { GameGenre, Platform } from "./services/gamesService";
 
 function App() {
   const { appThemeColors, toggleColorMode } = useThemeToggle();
-  const { games, errorMessage } = useGames();
+  const { games, errorMessage, initialize } = useGamesStore();
   const [shouldShowLoadingSkeleton, setShouldShowLoadingSkeleton] =
     useState(false);
   const [clickedGenre, setClickedGenre] = useState<GameGenre>();
@@ -33,6 +33,8 @@ function App() {
     relevanceMenuItems[0].value
   );
   const [searchGameName, setSearchGameName] = useState<string>();
+
+  useEffect(() => initialize(), []);
 
   useEffect(() => {
     showLoadingSkeleton();
