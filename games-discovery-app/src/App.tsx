@@ -16,7 +16,7 @@ function App() {
   const { appThemeColors, toggleColorMode } = useThemeToggle();
   const { games, errorMessage, initialize } = useGamesStore();
   const [shouldShowLoadingSkeleton, setShouldShowLoadingSkeleton] =
-    useState(false);
+    useState(true);
   const [clickedGenre, setClickedGenre] = useState<GameGenre>();
   const [clickedPlatformName, setClickedPlatformName] = useState<string>();
   const [uniquePlatforms, setUniquePlatforms] = useState<Platform[]>();
@@ -260,7 +260,7 @@ function App() {
               width="100%"
               pe="4"
             >
-              {shouldShowLoadingSkeleton || visibleGames.length === 0 ? (
+              {shouldShowLoadingSkeleton ? (
                 Array.from({ length: 20 }).map((_, index) => (
                   <GameCardSkeleton key={index} />
                 ))
