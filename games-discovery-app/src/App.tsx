@@ -260,7 +260,7 @@ function App() {
               width="100%"
               pe="4"
             >
-              {shouldShowLoadingSkeleton ? (
+              {shouldShowLoadingSkeleton || games.length === 0 ? (
                 Array.from({ length: 20 }).map((_, index) => (
                   <GameCardSkeleton key={index} />
                 ))
